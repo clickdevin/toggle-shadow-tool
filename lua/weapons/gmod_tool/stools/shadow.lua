@@ -53,7 +53,6 @@ if CLIENT then
     language.Add('tool.shadow.right', 'Enable a shadow')
     language.Add('tool.shadow.reload', 'Toggle the shadow of every constrained object')
     language.Add('tool.shadow.disable_checkbox', 'Disable all shadows (clientside only)')
-    language.Add('tool.shadow.cvar.disableshadows', 'If set to 1, disables all shadows clientside')
 
     TOOL.Information = {
         {name = 'left'},
@@ -69,7 +68,7 @@ if CLIENT then
         panel:AddItem(disable_checkbox)
     end
 
-    CreateClientConVar('tst_disableshadows', '0', false, false, '#tool.shadow.cvar.disableshadows')
+    CreateClientConVar('tst_disableshadows', '0', false, false, 'If set to 1, disables all shadows clientside')
     cvars.AddChangeCallback('tst_disableshadows', function(name, old, new)
         -- This is a hacky solution, but render.SetEnableShadows seems to
         -- try to do something similar, except it also seems to be broken.

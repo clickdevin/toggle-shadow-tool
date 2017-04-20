@@ -1,71 +1,82 @@
-TOOL.Category = "Render"
-TOOL.Name = "#tool.shadow.name"
-TOOL.Command = nil
-TOOL.ConfigName = nil
+TOOL.Category   = 'Render'
+TOOL.Name       = '#tool.shadow.name'
 
-if CLIENT then
-	language.Add("tool.shadow.name", "Toggle Shadow")
-	language.Add("tool.shadow.desc", "Enable or disable the render-to-texture shadow of an object")
-	language.Add("tool.shadow.left", "Disable a shadow")
-	language.Add("tool.shadow.right", "Enable a shadow")
-	language.Add("tool.shadow.reload", "Toggle the shadow of every constrained object")
-	language.Add("tool.shadow.color", "Shadow Distance")
-
-	TOOL.Information = {
-		{ name = "left" },
-		{ name = "right" },
-		{ name = "reload" }
-	}
+function TOOL.GetShadow(ent)
+    return ent:GetNWBool('tst_shadow', true)
 end
 
-if game.MaxPlayers() == 1 then
-	CreateConVar("tst_shadowdist", 1000)
-	hook.Add("Think", "shadowdistcalc", function()
-		RunConsoleCommand("r_shadowdist", GetConVar("tst_shadowdist"):GetInt())
-	end)
-end
+function TOOL.SetShadow(ply, ent, data)
+    if not ent:IsValid() then return end
 
-local function SetShadow(Player, Entity, Data)
-	if not SERVER then return end
-	if Data.Shadow ~= nil then
-		if Entity:IsValid() then Entity:DrawShadow(Data.Shadow) end
-	end
-	duplicator.StoreEntityModifier(Entity, "shadow", Data)
+    ent:DrawShadow(data.tst_shadow)
+    ent:SetNWBool('tst_shadow', data.tst_shadow)
+
+    if SERVER then
+        if not data.tst_shadow then
+            duplicator.StoreEntityModifier(ent, 'tst_shadow', data)
+        else
+            duplicator.ClearEntityModifier(ent, 'tst_shadow')
+        end
+    end
 end
-duplicator.RegisterEntityModifier("shadow", SetShadow)
+duplicator.RegisterEntityModifier('tst_shadow', TOOL.SetShadow)
 
 function TOOL:LeftClick(trace)
-	if trace.Entity:IsValid() then
-		SetShadow(self:GetOwner(), trace.Entity, {Shadow = false})
-		return true
-	end
+    if trace.Entity:IsValid() then
+        self.SetShadow(self:GetOwner(), trace.Entity, {tst_shadow = false})
+        return true
+    end
 end
 
 function TOOL:RightClick(trace)
-	if trace.Entity:IsValid() then
-		SetShadow(self:GetOwner(), trace.Entity, {Shadow = true})
-		return true
-	end
+    if trace.Entity:IsValid() then
+        self.SetShadow(self:GetOwner(), trace.Entity, {tst_shadow = true})
+        return true
+    end
 end
 
 function TOOL:Reload(trace)
-	if trace.Entity:IsValid() then
-		local constraints = constraint.GetAllConstrainedEntities(trace.Entity)
-		for k, v in pairs(constraints) do
-			SetShadow(self:GetOwner(), v, {Shadow = false})
-		end
-		return true
-	end
+    if trace.Entity:IsValid() then
+        local state = self.GetShadow(trace.Entity)
+        local ents = constraint.GetAllConstrainedEntities(trace.Entity)
+        for k, v in pairs(ents) do
+            self.SetShadow(self:GetOwner(), v, {tst_shadow = not state})
+        end
+        return true
+    end
 end
 
-function TOOL.BuildCPanel(panel)
-	if game.MaxPlayers() == 1 then
-		local DistSlider = vgui.Create("DNumSlider")
-			DistSlider:SetText("#tool.shadow.color")
-			DistSlider:SetMin(-128)
-			DistSlider:SetMax(1024)
-			DistSlider:SetDecimals(0)
-			DistSlider:SetConVar("tst_shadowdist")
-		panel:AddItem(DistSlider)
-	end
+if CLIENT then
+    language.Add('tool.shadow.name', 'Toggle Shadow')
+    language.Add('tool.shadow.desc', 'Enable or disable the render-to-texture shadow of an object')
+    language.Add('tool.shadow.left', 'Disable a shadow')
+    language.Add('tool.shadow.right', 'Enable a shadow')
+    language.Add('tool.shadow.reload', 'Toggle the shadow of every constrained object')
+    language.Add('tool.shadow.disable_checkbox', 'Disable all shadows (clientside only)')
+    language.Add('tool.shadow.cvar.disableshadows', 'If set to 1, disables all shadows clientside')
+
+    TOOL.Information = {
+        {name = 'left'},
+        {name = 'right'},
+        {name = 'reload'}
+    }
+
+    function TOOL.BuildCPanel(panel)
+        local disable_checkbox = vgui.Create('DCheckBoxLabel')
+        disable_checkbox:SetText('#tool.shadow.disable_checkbox')
+        disable_checkbox:SetValue(false)
+        disable_checkbox:SetConVar('tst_disableshadows')
+        panel:AddItem(disable_checkbox)
+    end
+
+    CreateClientConVar('tst_disableshadows', '0', false, false, '#tool.shadow.cvar.disableshadows')
+    cvars.AddChangeCallback('tst_disableshadows', function(name, old, new)
+        -- This is a hacky solution, but render.SetEnableShadows seems to
+        -- try to do something similar, except it also seems to be broken.
+        if new == '1' then
+            render.SetShadowDistance(-128)
+        else
+            render.SetShadowDistance(1024)
+        end
+    end)
 end

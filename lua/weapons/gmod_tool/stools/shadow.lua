@@ -61,7 +61,7 @@ if CLIENT then
     }
 
     function TOOL.BuildCPanel(panel)
-		panel:AddControl('Checkbox', {Label = '#tool.shadow.disable_checkbox', Command = 'tst_disableshadows'})
+        panel:AddControl('Checkbox', {Label = '#tool.shadow.disable_checkbox', Command = 'tst_disableshadows'})
     end
 
     CreateClientConVar('tst_disableshadows', '0', false, false, 'If set to 1, disables all shadows clientside')

@@ -3,6 +3,8 @@
 
 A simple addon that adds a tool to enable and disable render-to-texture shadows in Garry's Mod.
 
+[Steam Workshop](http://steamcommunity.com/sharedfiles/filedetails/?id=157560152)
+
 ## Usage
  - Use primary fire to disable the shadow on an object.
  - Use secondary fire to re-enable a shadow.

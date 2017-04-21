@@ -61,11 +61,7 @@ if CLIENT then
     }
 
     function TOOL.BuildCPanel(panel)
-        local disable_checkbox = vgui.Create('DCheckBoxLabel')
-        disable_checkbox:SetText('#tool.shadow.disable_checkbox')
-        disable_checkbox:SetValue(false)
-        disable_checkbox:SetConVar('tst_disableshadows')
-        panel:AddItem(disable_checkbox)
+		panel:AddControl('Checkbox', {Label = '#tool.shadow.disable_checkbox', Command = 'tst_disableshadows'})
     end
 
     CreateClientConVar('tst_disableshadows', '0', false, false, 'If set to 1, disables all shadows clientside')

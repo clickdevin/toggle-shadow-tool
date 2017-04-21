@@ -1,0 +1,11 @@
+{
+    "title"     : "Toggle Shadow Tool",
+    "type"      : "tool",
+    "tags"      : ["movie", "build"],
+    "ignore"    :
+    [
+        ".git*",
+        "LICENSE.txt",
+        "README.md"
+    ]
+}

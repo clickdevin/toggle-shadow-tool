@@ -66,7 +66,7 @@ if CLIENT then
 
     CreateClientConVar('tst_disableshadows', '0', false, false, 'If set to 1, disables all shadows clientside')
     cvars.AddChangeCallback('tst_disableshadows', function(name, old, new)
-        -- This is a hacky solution, but render.SetEnableShadows seems to
+        -- This is a hacky solution, but render.SetShadowsDisabled seems to
         -- try to do something similar, except it also seems to be broken.
         if new == '1' then
             render.SetShadowDistance(-4096)

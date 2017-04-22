@@ -69,7 +69,7 @@ if CLIENT then
         -- This is a hacky solution, but render.SetEnableShadows seems to
         -- try to do something similar, except it also seems to be broken.
         if new == '1' then
-            render.SetShadowDistance(-128)
+            render.SetShadowDistance(-4096)
         else
             render.SetShadowDistance(1024)
         end

@@ -53,6 +53,7 @@ if CLIENT then
     language.Add('tool.shadow.right', 'Enable a shadow')
     language.Add('tool.shadow.reload', 'Toggle the shadow of every constrained object')
     language.Add('tool.shadow.disable_checkbox', 'Disable all shadows (clientside only)')
+    language.Add('tool.shadow.distance_slider', 'Shadow distance (clientside only)')
 
     TOOL.Information = {
         {name = 'left'},
@@ -61,17 +62,41 @@ if CLIENT then
     }
 
     function TOOL.BuildCPanel(panel)
-        panel:AddControl('Checkbox', {Label = '#tool.shadow.disable_checkbox', Command = 'tst_disableshadows'})
+        panel:CheckBox('#tool.shadow.disable_checkbox', 'tst_disableshadows')
+        panel:NumSlider('#tool.shadow.distance_slider', 'tst_shadowdistance', -128, 2048)
     end
 
-    CreateClientConVar('tst_disableshadows', '0', false, false, 'If set to 1, disables all shadows clientside')
+    local cvar_shadowdist = CreateClientConVar(
+        'tst_shadowdistance',
+        '1024',
+        false,
+        false,
+        'Distance of shadows; only affects client; overridden by tst_disableshadows'
+    )
+    cvars.AddChangeCallback('tst_shadowdistance', function(name, old, new)
+        if not GetConVar('tst_disableshadows'):GetBool() then
+            render.SetShadowDistance(new)
+        end
+    end)
+
+    local cvar_disable = CreateClientConVar(
+        'tst_disableshadows',
+        '0',
+        false,
+        false,
+        'If set to 1, disables all shadows clientside'
+    )
     cvars.AddChangeCallback('tst_disableshadows', function(name, old, new)
         -- This is a hacky solution, but render.SetShadowsDisabled seems to
         -- try to do something similar, except it also seems to be broken.
-        if new == '1' then
+        if tobool(new) then
             render.SetShadowDistance(-4096)
         else
-            render.SetShadowDistance(1024)
+            render.SetShadowDistance(GetConVar('tst_shadowdistance'):GetFloat())
         end
     end)
+
+    -- Resets cvar values between sessions
+    cvar_shadowdist:SetFloat(cvar_shadowdist:GetDefault())
+    cvar_disable:SetBool(tobool(cvar_disable:GetDefault()))
 end

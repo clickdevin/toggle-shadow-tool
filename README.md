@@ -10,6 +10,7 @@ A simple addon that adds a tool to enable and disable render-to-texture shadows 
  - Use secondary fire to re-enable a shadow.
  - Use reload to toggle the shadow of an object as well as any constrained objects.
  - Disable all shadows from the option in the Tool menu.
+ - Change shadow distance from the option in the Tool menu.
 
 ## Compatibility
 This addon probably shouldn't interfere with other addons. It it intended to run in Sandbox mode, but it will probably work in any gamemode that is based on Sandbox mode and retains the Tool Gun.
